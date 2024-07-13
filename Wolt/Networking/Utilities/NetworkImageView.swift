@@ -29,7 +29,7 @@ class NetworkImageViewLoader {
             })
             .eraseToAnyPublisher()
     }
-    
+
     func cancelImageLoad() {
         cancellables.forEach { cancellable in
             cancellable.cancel()

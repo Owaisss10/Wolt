@@ -12,13 +12,13 @@ typealias NetworkingPublisherOutput = (data: Data, response: URLResponse)
 typealias NetworkingPublisher = AnyPublisher<NetworkingPublisherOutput, Error>
 
 extension URLSession {
-
+    
     /// Default networking without any request modifiers.
     func defaultNetworking(_ request: URLRequest) -> NetworkingPublisher {
-
+        
         dataTaskPublisher(for: request)
             .mapError { NetworkError($0) }
             .eraseToAnyPublisher()
     }
-
+    
 }

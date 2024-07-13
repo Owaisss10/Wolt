@@ -10,7 +10,6 @@ import Combine
 
 class ImageLoaderService {
     static let shared = ImageLoaderService()
-    private init() {}
 
     func loadImage(from url: URL) -> AnyPublisher<UIImage?, Never> {
         URLSession.shared.dataTaskPublisher(for: url)

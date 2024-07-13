@@ -176,9 +176,6 @@ extension LocationManager: CLLocationManagerDelegate {
         didChangeAuthorization status: CLAuthorizationStatus
     ) {
         switch status {
-//        case .notDetermined:
-//            locationManager.requestWhenInUseAuthorization()
-//            locationManager.requestAlwaysAuthorization()
         case .authorizedWhenInUse:
             locationManager.requestAlwaysAuthorization()
         default:

@@ -23,7 +23,7 @@ extension RestaurantsServiceError {
                 title: "No restaurants available",
                 body: "Wolt is unable to get any restaurants in your area right now."
             )
-
+            
         case .unknown:
             return ErrorMessage(
                 title: "Something went wrong",

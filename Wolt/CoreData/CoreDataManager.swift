@@ -11,8 +11,6 @@ import Combine
 class CoreDataManager {
     static let shared = CoreDataManager()
 
-    private init() {}
-
     lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "RestaurantDB")
         container.loadPersistentStores { (storeDescription, error) in

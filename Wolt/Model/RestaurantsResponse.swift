@@ -18,7 +18,7 @@ struct RestaurantsResponse: Codable {
 
 struct Section: Codable {
     let restaurants: [Restaurant]?
-
+    
     enum CodingKeys: String, CodingKey {
         case restaurants = "items"
     }
@@ -27,7 +27,7 @@ struct Section: Codable {
 struct Restaurant: Codable {
     let venue: Venue?
     let image: Image?
-
+    
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.venue = try container.decodeIfPresent(Venue.self, forKey: .venue)

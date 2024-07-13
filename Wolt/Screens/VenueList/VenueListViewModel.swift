@@ -60,7 +60,7 @@ class VenueListViewModel: VenueListViewModelProtocol {
             .sink { [weak self] address in
                 guard let self = self,
                       let address else { return }
-                self.currentAreaName.send("Showing restaurants in \n\(address)")
+                self.currentAreaName.send("Showing nearby restaurants in \n\(address)")
             }
             .store(in: &cancellables)
     }
@@ -73,10 +73,8 @@ class VenueListViewModel: VenueListViewModelProtocol {
         let lat = location.coordinate.latitude
         let lon = location.coordinate.longitude
         print("Current location: \(lat), \(lon)")
-        // let lat = 60.22580563115522
-        // let lon = 25.06259609234061
 
-        self.service.getNearbyRestaurants(for: Location(
+        self.service.getNearbyRestaurants(for: CLLocation(
             latitude: lat,
             longitude: lon
         ))

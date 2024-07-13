@@ -99,7 +99,6 @@ class VenueTableViewCell: UITableViewCell {
         ])
     }
 
-
     func configure(restaurant: Restaurant?) {
 
         let imageUrlString = restaurant?.image?.url
