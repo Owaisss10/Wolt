@@ -28,7 +28,7 @@ class VenueListViewModel: VenueListViewModelProtocol {
     // MARK: - Variables
     let service: RestaurantsServiceProtocol
     private var cancellables = Set<AnyCancellable>()
-    private var locationManager: LocationManaging
+    private var locationManager: LocationManagerProtocol
     var currentRestaurants = [Restaurant]()
 
     // MARK: - Publishers
@@ -41,11 +41,10 @@ class VenueListViewModel: VenueListViewModelProtocol {
     // MARK: - init
     init(
         service: RestaurantsServiceProtocol,
-        locationManager: LocationManaging = LocationManager.shared
+        locationManager: LocationManagerProtocol = LocationManager.shared
     ) {
         self.service = service
         self.locationManager = locationManager
-        (self.locationManager as? LocationManager)?.delegate = self
         setupBindings()
     }
 
@@ -156,23 +155,13 @@ class VenueListViewModel: VenueListViewModelProtocol {
     }
 
     private func fetchAddress(for location: CLLocation) {
-        locationManager.getAddressFromLatLon(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
+        locationManager.getAddressFromLatLon(
+            latitude: location.coordinate.latitude,
+            longitude: location.coordinate.longitude
+        )
     }
 }
 
-// MARK: - LocationManagerDelegate
-extension VenueListViewModel: LocationManagerDelegate {
-
-    func locationManagerDidUpdateLocation(_ location: CLLocation) {
-        print("VenueListViewModel.locationManagerDidUpdateLocation", location)
-        fetchAddress(for: location)
-    }
-
-    func locationManagerDidFailWithError(_ error: Error) {
-        print("VenueListViewModel.locationManagerDidFailWithError", error)
-        handleError(error)
-    }
-}
 
 // MARK: - Core Data methods
 

@@ -9,7 +9,7 @@ import Foundation
 import CoreLocation
 import Combine
 
-protocol LocationManaging {
+protocol LocationManagerProtocol {
     var isLocationPermissionGranted: Bool { get }
     var locationPublisher: PassthroughSubject<CLLocation, Never> { get }
     var addressPublisher: PassthroughSubject<String?, Never> { get }
@@ -21,12 +21,9 @@ protocol LocationManaging {
     func getAddressFromLatLon(latitude: Double, longitude: Double)
 }
 
-protocol LocationManagerDelegate: AnyObject {
-    func locationManagerDidUpdateLocation(_ location: CLLocation)
-    func locationManagerDidFailWithError(_ error: Error)
-}
+// TODO: Make 2 protocols one for permission handling, other for location updates
 
-class LocationManager: NSObject, LocationManaging {
+class LocationManager: NSObject, LocationManagerProtocol {
 
     static let shared = LocationManager()
 
@@ -38,8 +35,6 @@ class LocationManager: NSObject, LocationManaging {
     var addressPublisher = PassthroughSubject<String?, Never>()
     var authorizationPublisher = CurrentValueSubject<CLAuthorizationStatus, Never>(.notDetermined)
 
-    weak var delegate: LocationManagerDelegate?
-
     override private init() {
         super.init()
         locationManager.delegate = self
@@ -48,12 +43,10 @@ class LocationManager: NSObject, LocationManaging {
         locationManager.pausesLocationUpdatesAutomatically = false
         locationManager.requestWhenInUseAuthorization()
         locationManager.requestAlwaysAuthorization()
-
     }
 
     var isLocationPermissionGranted: Bool {
         let status = locationManager.authorizationStatus
-        print("locationManager.authorizationStatus: ", status)
         return status == .authorizedWhenInUse || status == .authorizedAlways
     }
 
@@ -138,8 +131,6 @@ class LocationManager: NSObject, LocationManaging {
             self?.addressPublisher.send(areaName)
         }
     }
-
-
 }
 
 // MARK: - CLLocationManagerDelegate
@@ -168,7 +159,6 @@ extension LocationManager: CLLocationManagerDelegate {
         } else {
             print("Failed to get user location: \(error.localizedDescription)")
         }
-        delegate?.locationManagerDidFailWithError(error)
     }
 
     func locationManager(

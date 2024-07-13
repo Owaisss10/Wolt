@@ -26,7 +26,7 @@ class WelcomeViewModel: WelcomeViewModelProtocol {
 
     // MARK: - Variables
     private var cancellables = Set<AnyCancellable>()
-    private var locationManager: LocationManaging
+    private var locationManager: LocationManagerProtocol
 
     // MARK: - Publishers
     var nextViewControllerPublisher = PassthroughSubject<UIViewController, Never>()
@@ -37,9 +37,8 @@ class WelcomeViewModel: WelcomeViewModelProtocol {
 
 
     // MARK: - init
-    init(locationManager: LocationManaging = LocationManager.shared) {
+    init(locationManager: LocationManagerProtocol = LocationManager.shared) {
         self.locationManager = locationManager
-        (self.locationManager as? LocationManager)?.delegate = self
         setupBindings()
     }
 
@@ -115,19 +114,5 @@ class WelcomeViewModel: WelcomeViewModelProtocol {
         alertController.addAction(settingsAction)
 
         return alertController
-    }
-}
-
-// MARK: - LocationManagerDelegate
-extension WelcomeViewModel: LocationManagerDelegate {
-
-    func locationManagerDidUpdateLocation(_ location: CLLocation) {
-        print("WelcomeViewModel.locationManagerDidUpdateLocation", location)
-        print("Latitude: \(location.coordinate.latitude), Longitude: \(location.coordinate.longitude)")
-    }
-
-    func locationManagerDidFailWithError(_ error: Error) {
-        print("WelcomeViewModel.locationManagerDidFailWithError", error)
-        locationManager.stopUpdatingLocation()
     }
 }
