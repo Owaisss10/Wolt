@@ -12,6 +12,7 @@ class WelcomeViewController<ViewModel: WelcomeViewModel>: UIViewController {
 
     let viewModel: ViewModel
     private var cancellables = Set<AnyCancellable>()
+    private let networkImageViewLoader = NetworkImageViewLoader()
 
     init(viewModel: ViewModel) {
         self.viewModel = viewModel
@@ -31,11 +32,6 @@ class WelcomeViewController<ViewModel: WelcomeViewModel>: UIViewController {
         setupNavigationBar()
         setupUIandConstraints()
         setUpViewModelToViewBindings()
-    }
-
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        //        viewModel.checkLocationPermissions()
     }
 
     private lazy var titleLabel: UILabel = {
@@ -58,6 +54,16 @@ class WelcomeViewController<ViewModel: WelcomeViewModel>: UIViewController {
         return label
     }()
 
+    private lazy var imageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        imageView.clipsToBounds = true
+        imageView.layer.cornerRadius = 20
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
+
+
     private lazy var requestLocationServicesButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Enable location services", for: .normal)
@@ -74,7 +80,16 @@ class WelcomeViewController<ViewModel: WelcomeViewModel>: UIViewController {
         view.backgroundColor = .systemBackground
         view.addSubview(titleLabel)
         view.addSubview(bodyLabel)
+        view.addSubview(imageView)
         view.addSubview(requestLocationServicesButton)
+
+        networkImageViewLoader.loadImage(from: URL(string: "https://woltpartner.dk/wp-content/uploads/2021/08/BTQ_wolt_bike_couriers_6K_v03@2x.jpg")!)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] image in
+                guard let self = self else { return }
+                self.imageView.image = image
+            }
+            .store(in: &cancellables)
 
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 50),
@@ -85,11 +100,18 @@ class WelcomeViewController<ViewModel: WelcomeViewModel>: UIViewController {
             bodyLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             bodyLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
 
+
+            imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            imageView.topAnchor.constraint(equalTo: bodyLabel.bottomAnchor, constant: 30),
+            imageView.widthAnchor.constraint(equalToConstant: 200),
+            imageView.heightAnchor.constraint(equalToConstant: 200),
+
             requestLocationServicesButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -30),
             requestLocationServicesButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             requestLocationServicesButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8),
             requestLocationServicesButton.heightAnchor.constraint(equalToConstant: 50)
         ])
+
     }
 
     @objc func locationButtonTapped() {
