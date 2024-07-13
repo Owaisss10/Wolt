@@ -14,7 +14,6 @@ protocol VenueListViewModelProtocol: AnyObject {
     var isLoadingPublisher: Published<Bool>.Publisher { get }
     var errorStatePublisher: CurrentValueSubject<ErrorState?, Never> { get }
     var restaurantsPublisher: CurrentValueSubject<[Restaurant], Never> { get }
-    var nextViewControllerPublisher: PassthroughSubject<UIViewController, Never> { get }
     var currentAreaName: CurrentValueSubject<String, Never> { get }
     func saveFavoriteState(for venueId: String?, isFavorite: Bool?)
     func stopUpdatingLocation()
@@ -32,8 +31,7 @@ class VenueListViewModel: VenueListViewModelProtocol {
     var isLoadingPublisher: Published<Bool>.Publisher { $isLoading }
     var restaurantsPublisher = CurrentValueSubject<[Restaurant], Never>([])
     var errorStatePublisher = CurrentValueSubject<ErrorState?, Never>(nil)
-    var nextViewControllerPublisher = PassthroughSubject<UIViewController, Never>()
-    var currentAreaName = CurrentValueSubject<String, Never>("Nearby restaurants")
+    var currentAreaName = CurrentValueSubject<String, Never>("Nearby restaurants in \n-")
 
     // MARK: - init
     init(
@@ -51,8 +49,9 @@ class VenueListViewModel: VenueListViewModelProtocol {
         locationManager.locationPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] location in
-                self?.getNearbyRestaurantsIn(location: location)
-                self?.fetchAddress(for: location)
+                guard let self = self else { return }
+                self.getNearbyRestaurantsIn(location: location)
+                self.fetchAddress(for: location)
             }
             .store(in: &cancellables)
 
@@ -61,7 +60,6 @@ class VenueListViewModel: VenueListViewModelProtocol {
             .sink { [weak self] address in
                 guard let self = self,
                       let address else { return }
-                print("Address: \(address)")
                 self.currentAreaName.send("Showing restaurants in \n\(address)")
             }
             .store(in: &cancellables)
@@ -70,7 +68,7 @@ class VenueListViewModel: VenueListViewModelProtocol {
     // MARK: - Load data
     func getNearbyRestaurantsIn(location: CLLocation) {
 
-        self.isLoading = true
+        isLoading = true
 
         let lat = location.coordinate.latitude
         let lon = location.coordinate.longitude
@@ -83,11 +81,13 @@ class VenueListViewModel: VenueListViewModelProtocol {
             longitude: lon
         ))
         .sink( receiveCompletion: { [weak self] in
+            guard let self = self else { return }
             if case let .failure(error) = $0 {
-                self?.handleError(error)
+                self.handleError(error)
             }
         }, receiveValue: { [weak self] in
-            self?.handleRestaurantsList($0)
+            guard let self = self else { return }
+            self.processAndMatchFavoriteRestaurants($0)
         })
         .store(in: &self.cancellables)
     }
@@ -96,44 +96,40 @@ class VenueListViewModel: VenueListViewModelProtocol {
         locationManager.stopUpdatingLocation()
     }
 
-    private func handleRestaurantsList(_ restaurants: [Restaurant]) {
+    private func processAndMatchFavoriteRestaurants(_ restaurants: [Restaurant]) {
         isLoading = false
-        // Match the restaurants coming from server with locally saved restaurants
-        let restaurantsWithFavoriteState = self.matchRestaurantsWithFavoriteState(
-            restaurants: restaurants
-        )
 
-        restaurantsPublisher.send(restaurantsWithFavoriteState)
+        // Match the restaurants coming from server with locally saved restaurants
+        matchRestaurantsWithFavoriteState(restaurants)
+    }
+
+    private func didReceiveRestaurants(_ restaurants: [Restaurant]) {
+        restaurantsPublisher.send(restaurants)
         errorStatePublisher.send(nil)
     }
 
-
     // MARK: Error handling
+    /// 1. Check for any `NetworkError`
+    /// 2. Check for any `RestaurantsServiceError`
+    /// 3. Check for any `HTTPError`
     private func handleError(_ error: Error) {
         isLoading = false
 
         var errorState = ErrorState.unknownError
 
-        let networkError = NetworkError(error)
-
-        switch(networkError) {
-        case .notConnectedToInternet:
-            errorState = ErrorState.networkOffline
-        case .other, .timedOut:
-            errorState = ErrorState.serverError
-        }
-
-        if let restaurantsServiceError = error as? RestaurantsServiceError {
+        if let networkError = error as? NetworkError {
+            switch(networkError) {
+            case .notConnectedToInternet:
+                errorState = ErrorState.networkOffline
+            case .other, .timedOut:
+                errorState = ErrorState.serverError
+            }
+        } else if let restaurantsServiceError = error as? RestaurantsServiceError {
             errorState = ErrorState.customError(errorMessage: restaurantsServiceError.message)
         } else if let httpError = error as? HTTPError,
                   case let .any(response) = httpError,
                   let statusCode = response.httpStatusCode {
-            if statusCode == -1009 {
-                errorState = ErrorState.networkOffline
-            } else {
-                errorState = ErrorState.serverError
-            }
-
+            errorState = ErrorState.httpError(statusCode: statusCode)
         }
         showErrorState(errorState)
     }
@@ -141,19 +137,6 @@ class VenueListViewModel: VenueListViewModelProtocol {
     private func showErrorState(_ errorState: ErrorState) {
         restaurantsPublisher.send([])
         errorStatePublisher.send(errorState)
-    }
-
-    func presentAlertFor(_ message: ErrorMessage?) {
-        guard let message = message else { return }
-        let alertController = UIAlertController(
-            title: message.title,
-            message: message.body,
-            preferredStyle: .alert
-        )
-        alertController.addAction(
-            UIAlertAction(title: "OK", style: .default, handler: nil)
-        )
-        nextViewControllerPublisher.send(alertController)
     }
 
     private func fetchAddress(for location: CLLocation) {
@@ -177,58 +160,62 @@ extension VenueListViewModel: LocationManagerDelegate {
 
 // MARK: - Core Data methods
 
-// TODO: Start using Combne?
-
 extension VenueListViewModel {
+
     func saveFavoriteState(for venueId: String?, isFavorite: Bool? = false) {
-        let context = CoreDataManager.shared.context
-        guard let venueId else { return }
+        guard let venueId = venueId else { return }
 
-        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "FavoriteItem")
-        fetchRequest.predicate = NSPredicate(format: "id == %@", venueId)
-
-        do {
-            let results = try context.fetch(fetchRequest)
-            if let venue = results.first {
-                venue.setValue(isFavorite, forKey: "isFavorite")
-            } else {
-                let entity = NSEntityDescription.entity(forEntityName: "FavoriteItem", in: context)!
-                let newVenue = NSManagedObject(entity: entity, insertInto: context)
-                newVenue.setValue(venueId, forKey: "id")
-                newVenue.setValue(isFavorite, forKey: "isFavorite")
-            }
-            try context.save()
-        } catch {
-            print("Failed to fetch or save venue: \(error)")
-        }
-    }
-
-    func matchRestaurantsWithFavoriteState(restaurants: [Restaurant]) -> [Restaurant] {
-        let context = CoreDataManager.shared.context
-        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "FavoriteItem")
-
-        do {
-            let favoriteItems = try context.fetch(fetchRequest)
-            var restaurantsWithFavoriteState: [Restaurant] = []
-
-            for restaurant in restaurants {
-                if let favoriteRestaurant = favoriteItems.first(
-                    where: { $0.value(forKey: "id") as? String == restaurant.venue?.id }
-                ) {
-                    let isFavorite = favoriteRestaurant.value(forKey: "isFavorite") as? Bool ?? false
-                    var updatedRestaurant = restaurant
-                    updatedRestaurant.isFavorite = isFavorite
-                    restaurantsWithFavoriteState.append(updatedRestaurant)
+        CoreDataManager.shared.fetchFavoriteItem(withId: venueId)
+            .flatMap { favoriteItem -> AnyPublisher<Void, Error> in
+                let context = CoreDataManager.shared.context
+                if let venue = favoriteItem {
+                    venue.setValue(isFavorite, forKey: "isFavorite")
                 } else {
-                    restaurantsWithFavoriteState.append(restaurant)
+                    let entity = NSEntityDescription.entity(forEntityName: "FavoriteItem", in: context)!
+                    let newVenue = NSManagedObject(entity: entity, insertInto: context)
+                    newVenue.setValue(venueId, forKey: "id")
+                    newVenue.setValue(isFavorite, forKey: "isFavorite")
                 }
+                return CoreDataManager.shared.saveContext()
             }
-
-            return restaurantsWithFavoriteState
-        } catch {
-            print("Failed to fetch favorite restaurants: \(error)")
-            return restaurants
-        }
+            .sink(receiveCompletion: { completion in
+                if case let .failure(error) = completion {
+                    print("Failed to save favorite state: \(error)")
+                }
+            }, receiveValue: {
+                print("Favorite state saved successfully")
+            })
+            .store(in: &cancellables)
     }
 
+    func matchRestaurantsWithFavoriteState(_ restaurants: [Restaurant]) {
+        CoreDataManager.shared.fetchFavoriteItems()
+            .map { favoriteItems -> [Restaurant] in
+                var restaurantsWithFavoriteState: [Restaurant] = []
+
+                for restaurant in restaurants {
+                    if let favoriteRestaurant = favoriteItems.first(
+                        where: { $0.value(forKey: "id") as? String == restaurant.venue?.id }
+                    ) {
+                        let isFavorite = favoriteRestaurant.value(forKey: "isFavorite") as? Bool ?? false
+                        var updatedRestaurant = restaurant
+                        updatedRestaurant.isFavorite = isFavorite
+                        restaurantsWithFavoriteState.append(updatedRestaurant)
+                    } else {
+                        restaurantsWithFavoriteState.append(restaurant)
+                    }
+                }
+
+                return restaurantsWithFavoriteState
+            }
+            .sink(receiveCompletion: { completion in
+                if case let .failure(error) = completion {
+                    print("Failed to match restaurants with favorite state: \(error)")
+                    self.handleError(error)
+                }
+            }, receiveValue: { matchedRestaurants in
+                self.didReceiveRestaurants(matchedRestaurants)
+            })
+            .store(in: &cancellables)
+    }
 }

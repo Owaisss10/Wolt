@@ -53,7 +53,7 @@ class VenueListViewController<ViewModel: VenueListViewModel>: UITableViewControl
     }
 
     private func setupNavigationBar() {
-        navigationItem.title = "Nearby restaurants"
+        navigationItem.title = "Wolt"
         // A loading activity indicator is shown at the right of navigation bar
         activityIndicator.hidesWhenStopped = true
         let activityIndicatorBarButton = UIBarButtonItem(
@@ -65,10 +65,11 @@ class VenueListViewController<ViewModel: VenueListViewModel>: UITableViewControl
     // MARK: - Lifecycle
     override func viewDidLoad() {
         tableView.separatorStyle = .singleLine
-
-        tableView.register(VenueTableViewCell.self, forCellReuseIdentifier: VenueTableViewCell.reuseIdentifier)
-
         tableView.tableHeaderView = headerView
+        tableView.register(
+            VenueTableViewCell.self,
+            forCellReuseIdentifier: VenueTableViewCell.reuseIdentifier
+        )
 
         setupNavigationBar()
         setUpViewModelToViewBindings()
@@ -96,11 +97,12 @@ class VenueListViewController<ViewModel: VenueListViewModel>: UITableViewControl
     func setUpViewModelToViewBindings() {
         viewModel.isLoadingPublisher
             .receive(on: DispatchQueue.main)
-            .sink { [self] in
+            .sink { [weak self] in
+                guard let self = self else { return }
                 if $0 {
-                    showLoadingIndicator()
+                    self.showLoadingIndicator()
                 } else {
-                    hideLoadingIndicator()
+                    self.hideLoadingIndicator()
                 }
             }
             .store(in: &cancellables)
@@ -108,16 +110,18 @@ class VenueListViewController<ViewModel: VenueListViewModel>: UITableViewControl
         viewModel.currentAreaName
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
-                self?.headerView.title = $0
+                guard let self = self else { return }
+                self.headerView.title = $0
             }
             .store(in: &cancellables)
 
         viewModel.restaurantsPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
-                if (self?.currentRestaurants != $0) {
-                    self?.currentRestaurants = $0
-                    self?.tableView.reloadData()
+                guard let self = self else { return }
+                if (self.currentRestaurants != $0) {
+                    self.currentRestaurants = $0
+                    self.tableView.reloadData()
                 }
             }
             .store(in: &cancellables)
@@ -125,15 +129,9 @@ class VenueListViewController<ViewModel: VenueListViewModel>: UITableViewControl
         viewModel.errorStatePublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] errorState in
-                self?.errorState = errorState
-                self?.updateBackgroundView()
-            }
-            .store(in: &cancellables)
-
-        viewModel.nextViewControllerPublisher
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] controller in
-                self?.navigationController?.pushViewController(controller, animated: true)
+                guard let self = self else { return }
+                self.errorState = errorState
+                self.updateBackgroundView()
             }
             .store(in: &cancellables)
     }
@@ -159,24 +157,23 @@ class VenueListViewController<ViewModel: VenueListViewModel>: UITableViewControl
         cell.delegate = self
         cell.configure(restaurant: viewModel.restaurantsPublisher.value[indexPath.row])
         return cell
-
     }
 
     // MARK: - Table view delegate
-//    override func tableView(
-//        _ tableView: UITableView,
-//        didSelectRowAt indexPath: IndexPath
-//    ) {
-//        tableView.deselectRow(at: indexPath, animated: false)
-//    }
+
+    override func tableView(
+        _ tableView: UITableView,
+        didSelectRowAt indexPath: IndexPath
+    ) {
+        tableView.deselectRow(at: indexPath, animated: false)
+    }
 }
 
 extension VenueListViewController: VenueTableViewCellDelegate {
     func didToggleFavorite(for cell: VenueTableViewCell) {
         guard let indexPath = tableView.indexPath(for: cell) else { return }
-print("spike, cell index", indexPath)
-        var restaurant = viewModel.restaurantsPublisher.value[indexPath.row]
-//        restaurant.isFavorite = !restaurant.isFavorite
+        print("spike, cell index", indexPath)
+        let restaurant = viewModel.restaurantsPublisher.value[indexPath.row]
         print("spike, cell restaurant", restaurant.isFavorite)
 
         viewModel.saveFavoriteState(for: restaurant.venue?.id, isFavorite: !restaurant.isFavorite)

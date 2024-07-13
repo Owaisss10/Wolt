@@ -11,6 +11,7 @@ enum ErrorState {
     case networkOffline
     case serverError
     case customError(errorMessage: ErrorMessage)
+    case httpError(statusCode: Int)
     case unknownError
 
     var title: String {
@@ -21,6 +22,8 @@ enum ErrorState {
             return "Server Error"
         case .customError(let errorMessage):
             return errorMessage.title ?? ""
+        case .httpError(let statusCode):
+            return "HTTP Error - \(statusCode)"
         case .unknownError:
             return "Unknown Error"
         }
@@ -34,8 +37,10 @@ enum ErrorState {
             return "Something went wrong with the network request. Please try again later."
         case .customError(let errorMessage):
             return errorMessage.body ?? ""
+        case .httpError(_):
+            return "An unexpected error occurred while processing your request. Please try again."
         case .unknownError:
-            return "An unexpected error occurred. Please try again later."
+            return "An unexpected error occurred while processing your request. Please try again."
         }
     }
 }

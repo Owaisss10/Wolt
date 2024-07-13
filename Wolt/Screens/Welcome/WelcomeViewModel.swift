@@ -10,12 +10,16 @@ import CoreLocation
 import Combine
 
 protocol WelcomeViewModelProtocol {
+    var nextViewControllerPublisher: PassthroughSubject<UIViewController, Never> { get }
+    var presentViewControllerPublisher: PassthroughSubject<UIViewController, Never> { get }
+
     var locationPermissionStatus: PassthroughSubject<CLAuthorizationStatus?, Never> { get }
     var locationPermissionDenied: PassthroughSubject<Void, Never> { get }
     var locationPermissionGranted: PassthroughSubject<Void, Never> { get }
-    var getSettingsAlertController: UIAlertController { get }
     var isLocationPermissionGranted: Bool { get }
-    func requestLocationPermissions()
+    func checkAndRequestLocationPermissions()
+    func navigateToVenueListViewController()
+    func presentSettingsAlertController()
 }
 
 class WelcomeViewModel: WelcomeViewModelProtocol {
@@ -25,6 +29,8 @@ class WelcomeViewModel: WelcomeViewModelProtocol {
     private var locationManager: LocationManaging
 
     // MARK: - Publishers
+    var nextViewControllerPublisher = PassthroughSubject<UIViewController, Never>()
+    var presentViewControllerPublisher = PassthroughSubject<UIViewController, Never>()
     var locationPermissionStatus = PassthroughSubject<CLAuthorizationStatus?, Never>()
     var locationPermissionDenied = PassthroughSubject<Void, Never>()
     var locationPermissionGranted = PassthroughSubject<Void, Never>()
@@ -64,8 +70,27 @@ class WelcomeViewModel: WelcomeViewModelProtocol {
         }
     }
 
-    func requestLocationPermissions() {
-        locationManager.requestLocationPermissions()
+    func checkAndRequestLocationPermissions() {
+        // If location permissions are denied, show an alert dialog for navigating to settings and allowing location services
+        // otherwise show location services prompt
+        if locationManager.authorizationPublisher.value == .denied {
+            presentSettingsAlertController()
+        } else {
+            locationManager.requestLocationPermissions()
+        }
+    }
+
+    func navigateToVenueListViewController() {
+        let venueListViewController = VenueListViewController(
+            viewModel: VenueListViewModel(
+                service: RestaurantsService()
+            )
+        )
+        nextViewControllerPublisher.send(venueListViewController)
+    }
+
+    func presentSettingsAlertController() {
+        presentViewControllerPublisher.send(getSettingsAlertController)
     }
 
     var getSettingsAlertController: UIAlertController {

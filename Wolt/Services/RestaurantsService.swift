@@ -47,20 +47,13 @@ class RestaurantsService: RestaurantsServiceProtocol {
             let publisher = self!.urlSession.defaultNetworking(request)
                 .tryMap { (data: Data, response: URLResponse) -> [Restaurant] in
                     guard response.isHttpStatusCode(in: 200...299) else {
-                        if response.httpStatusCode == 404 {
-                            // TODO: Should we throw noRestaurants or unknown here in case of 404?
-                            print("RestaurantsServiceError.unknown")
-                            throw RestaurantsServiceError.unknown
-                        }
-                        print("HTTPError.any")
                         throw HTTPError.any(response: response)
                     }
 
-                    let restaurantsResponse = try JSONDecoder().decode(RestaurantsResponse.self, from: data)
-                   
-                    if Bool.random() {
-                        throw RestaurantsServiceError.noRestaurants
-                    }
+                    let restaurantsResponse = try JSONDecoder().decode(
+                        RestaurantsResponse.self,
+                        from: data
+                    )
 
                     guard let section = restaurantsResponse.sections?.last,
                           let restaurants = section.restaurants,
