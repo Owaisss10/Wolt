@@ -15,8 +15,12 @@ protocol VenueListViewModelProtocol: AnyObject {
     var errorStatePublisher: CurrentValueSubject<ErrorState?, Never> { get }
     var restaurantsPublisher: CurrentValueSubject<[Restaurant], Never> { get }
     var currentAreaName: CurrentValueSubject<String, Never> { get }
-    func saveFavoriteState(for venueId: String?, isFavorite: Bool?)
+    func saveFavoriteVenue(venueId: String)
+    func deleteFavoriteVenue(venueId: String)
     func stopUpdatingLocation()
+    func startUpdatingLocation(every interval: TimeInterval)
+    func toggleFavoriteRestaurant(restaurant: Restaurant)
+    var currentRestaurants: [Restaurant] { get }
 }
 
 class VenueListViewModel: VenueListViewModelProtocol {
@@ -25,6 +29,7 @@ class VenueListViewModel: VenueListViewModelProtocol {
     let service: RestaurantsServiceProtocol
     private var cancellables = Set<AnyCancellable>()
     private var locationManager: LocationManaging
+    var currentRestaurants = [Restaurant]()
 
     // MARK: - Publishers
     @Published var isLoading = false
@@ -42,7 +47,10 @@ class VenueListViewModel: VenueListViewModelProtocol {
         self.locationManager = locationManager
         (self.locationManager as? LocationManager)?.delegate = self
         setupBindings()
-        self.locationManager.startUpdatingLocation(every: 10)
+    }
+
+    func startUpdatingLocation(every interval: TimeInterval) {
+        locationManager.startUpdatingLocation(every: interval)
     }
 
     private func setupBindings() {
@@ -102,8 +110,18 @@ class VenueListViewModel: VenueListViewModelProtocol {
     }
 
     private func didReceiveRestaurants(_ restaurants: [Restaurant]) {
-        restaurantsPublisher.send(restaurants)
+        guard currentRestaurants != restaurants else { return }
+        currentRestaurants = restaurants
+        restaurantsPublisher.send(currentRestaurants)
         errorStatePublisher.send(nil)
+    }
+
+    func toggleFavoriteRestaurant(restaurant: Restaurant) {
+        if let index = currentRestaurants.firstIndex(of: restaurant) {
+            var restaurantToUpdate = currentRestaurants[index]
+            restaurantToUpdate.isFavorite.toggle()
+            currentRestaurants[index] = restaurantToUpdate
+        }
     }
 
     // MARK: Error handling
@@ -159,61 +177,32 @@ extension VenueListViewModel: LocationManagerDelegate {
 // MARK: - Core Data methods
 
 extension VenueListViewModel {
+    func saveFavoriteVenue(venueId: String) {
+        CoreDataManager.shared.saveFavoriteItem(id: venueId)
+    }
 
-    func saveFavoriteState(for venueId: String?, isFavorite: Bool? = false) {
-        guard let venueId = venueId else { return }
-
-        CoreDataManager.shared.fetchFavoriteItem(withId: venueId)
-            .flatMap { favoriteItem -> AnyPublisher<Void, Error> in
-                let context = CoreDataManager.shared.context
-                if let venue = favoriteItem {
-                    venue.setValue(isFavorite, forKey: "isFavorite")
-                } else {
-                    let entity = NSEntityDescription.entity(forEntityName: "FavoriteItem", in: context)!
-                    let newVenue = NSManagedObject(entity: entity, insertInto: context)
-                    newVenue.setValue(venueId, forKey: "id")
-                    newVenue.setValue(isFavorite, forKey: "isFavorite")
-                }
-                return CoreDataManager.shared.saveContext()
-            }
-            .sink(receiveCompletion: { completion in
-                if case let .failure(error) = completion {
-                    print("Failed to save favorite state: \(error)")
-                }
-            }, receiveValue: {
-                print("Favorite state saved successfully")
-            })
-            .store(in: &cancellables)
+    func deleteFavoriteVenue(venueId: String) {
+        CoreDataManager.shared.deleteFavoriteItem(for: venueId)
     }
 
     func matchRestaurantsWithFavoriteState(_ restaurants: [Restaurant]) {
-        CoreDataManager.shared.fetchFavoriteItems()
-            .map { favoriteItems -> [Restaurant] in
-                var restaurantsWithFavoriteState: [Restaurant] = []
+        let favoriteItems = CoreDataManager.shared.fetchFavoriteItems()
+        if !favoriteItems.isEmpty {
+            var restaurantsWithFavoriteState: [Restaurant] = []
 
-                for restaurant in restaurants {
-                    if let favoriteRestaurant = favoriteItems.first(
-                        where: { $0.value(forKey: "id") as? String == restaurant.venue?.id }
-                    ) {
-                        let isFavorite = favoriteRestaurant.value(forKey: "isFavorite") as? Bool ?? false
-                        var updatedRestaurant = restaurant
-                        updatedRestaurant.isFavorite = isFavorite
-                        restaurantsWithFavoriteState.append(updatedRestaurant)
-                    } else {
-                        restaurantsWithFavoriteState.append(restaurant)
-                    }
+            restaurants.forEach { restaurant in
+                if let isFavorite = favoriteItems.first(where: {$0.id == restaurant.venue?.id})?.isFavorite {
+                    var updatedRestaurant = restaurant
+                    updatedRestaurant.isFavorite = isFavorite
+                    restaurantsWithFavoriteState.append(updatedRestaurant)
+                } else {
+                    restaurantsWithFavoriteState.append(restaurant)
                 }
-
-                return restaurantsWithFavoriteState
             }
-            .sink(receiveCompletion: { completion in
-                if case let .failure(error) = completion {
-                    print("Failed to match restaurants with favorite state: \(error)")
-                    self.handleError(error)
-                }
-            }, receiveValue: { matchedRestaurants in
-                self.didReceiveRestaurants(matchedRestaurants)
-            })
-            .store(in: &cancellables)
+
+            didReceiveRestaurants(restaurantsWithFavoriteState)
+        } else {
+            didReceiveRestaurants(restaurants)
+        }
     }
 }

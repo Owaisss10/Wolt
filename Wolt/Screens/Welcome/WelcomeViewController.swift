@@ -56,7 +56,7 @@ class WelcomeViewController<ViewModel: WelcomeViewModel>: UIViewController {
 
     private lazy var imageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFit
+        imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         imageView.layer.cornerRadius = 20
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -100,11 +100,11 @@ class WelcomeViewController<ViewModel: WelcomeViewModel>: UIViewController {
             bodyLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             bodyLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
 
-
             imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            imageView.topAnchor.constraint(equalTo: bodyLabel.bottomAnchor, constant: 30),
-            imageView.widthAnchor.constraint(equalToConstant: 200),
-            imageView.heightAnchor.constraint(equalToConstant: 200),
+            imageView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8),
+            imageView.heightAnchor.constraint(equalTo: view.widthAnchor),
+            imageView.topAnchor.constraint(equalTo: bodyLabel.bottomAnchor, constant: 20),
+            imageView.bottomAnchor.constraint(equalTo: requestLocationServicesButton.topAnchor, constant: -20),
 
             requestLocationServicesButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -30),
             requestLocationServicesButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),

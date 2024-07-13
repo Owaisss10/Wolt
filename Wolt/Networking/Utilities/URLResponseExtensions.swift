@@ -28,5 +28,3 @@ extension URLResponse {
         return array.contains(code)
     }
 }
-
-

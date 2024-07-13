@@ -105,7 +105,7 @@
 				6C7680C72C385CF700D8895C /* LaunchScreen.storyboard */,
 				6C7680D02C385F5800D8895C /* README.md */,
 				6C7681012C3DD6F300D8895C /* RestaurantDB.xcdatamodeld */,
-				6C7681152C3E7A1F00D8895C /* CoreData */,
+				6C7681152C3E7A1F00D8895C /* Persistence */,
 				6C7680E92C3AC7B800D8895C /* Screens */,
 				6C7680D22C3ABC4900D8895C /* Model */,
 				6C7680DC2C3ABF3200D8895C /* Networking */,
@@ -203,12 +203,12 @@
 			path = VenueList;
 			sourceTree = "<group>";
 		};
-		6C7681152C3E7A1F00D8895C /* CoreData */ = {
+		6C7681152C3E7A1F00D8895C /* Persistence */ = {
 			isa = PBXGroup;
 			children = (
 				6C76811E2C3E7C6F00D8895C /* CoreDataManager.swift */,
 			);
-			path = CoreData;
+			path = Persistence;
 			sourceTree = "<group>";
 		};
 		6C7681242C400ED600D8895C /* Utilities */ = {

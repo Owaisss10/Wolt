@@ -15,10 +15,8 @@ extension URLSession {
     
     /// Default networking without any request modifiers.
     func defaultNetworking(_ request: URLRequest) -> NetworkingPublisher {
-        
         dataTaskPublisher(for: request)
-            .mapError { NetworkError($0) }
+            .mapError(NetworkError.init)
             .eraseToAnyPublisher()
     }
-    
 }
