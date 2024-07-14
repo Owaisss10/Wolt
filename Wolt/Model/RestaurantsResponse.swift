@@ -29,6 +29,11 @@ struct Restaurant: Codable {
         self.image = try container.decodeIfPresent(Image.self, forKey: .image)
     }
 
+    init(venue: Venue?, image: Image?) {
+        self.venue = venue
+        self.image = image
+    }
+
     var isFavorite: Bool = false
 }
 

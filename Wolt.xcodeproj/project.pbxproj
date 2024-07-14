@@ -35,7 +35,19 @@
 		6C76811F2C3E7C6F00D8895C /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C76811E2C3E7C6F00D8895C /* CoreDataManager.swift */; };
 		6C7681212C3FFC0B00D8895C /* FavoriteButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C7681202C3FFC0B00D8895C /* FavoriteButton.swift */; };
 		6C7681262C400EE900D8895C /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C7681252C400EE900D8895C /* LocationManager.swift */; };
+		6CD68D1E2C442B6D0098DDB7 /* WoltTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CD68D1D2C442B6D0098DDB7 /* WoltTests.swift */; };
+		6CD68D252C442BE90098DDB7 /* RestaurantResponseModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CD68D242C442BE90098DDB7 /* RestaurantResponseModelTests.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		6CD68D1F2C442B6D0098DDB7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6C7680B12C385CF500D8895C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6C7680B82C385CF500D8895C;
+			remoteInfo = Wolt;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		6C21289D2C43509D0071AEC1 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
@@ -68,10 +80,20 @@
 		6C76811E2C3E7C6F00D8895C /* CoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
 		6C7681202C3FFC0B00D8895C /* FavoriteButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteButton.swift; sourceTree = "<group>"; };
 		6C7681252C400EE900D8895C /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
+		6CD68D1B2C442B6D0098DDB7 /* WoltTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WoltTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		6CD68D1D2C442B6D0098DDB7 /* WoltTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WoltTests.swift; sourceTree = "<group>"; };
+		6CD68D242C442BE90098DDB7 /* RestaurantResponseModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantResponseModelTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		6C7680B62C385CF500D8895C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6CD68D182C442B6D0098DDB7 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -94,6 +116,7 @@
 			isa = PBXGroup;
 			children = (
 				6C7680BB2C385CF500D8895C /* Wolt */,
+				6CD68D1C2C442B6D0098DDB7 /* WoltTests */,
 			);
 			sourceTree = "<group>";
 		};
@@ -101,6 +124,7 @@
 			isa = PBXGroup;
 			children = (
 				6C7680B92C385CF500D8895C /* Wolt.app */,
+				6CD68D1B2C442B6D0098DDB7 /* WoltTests.xctest */,
 			);
 			name = Products;
 			path = ..;
@@ -116,10 +140,10 @@
 				6C7680C72C385CF700D8895C /* LaunchScreen.storyboard */,
 				6C7681012C3DD6F300D8895C /* RestaurantDB.xcdatamodeld */,
 				6C21289F2C43556B0071AEC1 /* Extensions */,
-				6C7681152C3E7A1F00D8895C /* Persistence */,
-				6C7680E92C3AC7B800D8895C /* Screens */,
 				6C7680D22C3ABC4900D8895C /* Model */,
 				6C7680DC2C3ABF3200D8895C /* Networking */,
+				6C7681152C3E7A1F00D8895C /* Persistence */,
+				6C7680E92C3AC7B800D8895C /* Screens */,
 				6C7680D72C3ABD9700D8895C /* Services */,
 				6C7681242C400ED600D8895C /* Utilities */,
 				6C7680D32C3ABC5000D8895C /* View */,
@@ -222,6 +246,15 @@
 			path = Utilities;
 			sourceTree = "<group>";
 		};
+		6CD68D1C2C442B6D0098DDB7 /* WoltTests */ = {
+			isa = PBXGroup;
+			children = (
+				6CD68D1D2C442B6D0098DDB7 /* WoltTests.swift */,
+				6CD68D242C442BE90098DDB7 /* RestaurantResponseModelTests.swift */,
+			);
+			path = WoltTests;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -242,6 +275,24 @@
 			productReference = 6C7680B92C385CF500D8895C /* Wolt.app */;
 			productType = "com.apple.product-type.application";
 		};
+		6CD68D1A2C442B6D0098DDB7 /* WoltTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6CD68D212C442B6D0098DDB7 /* Build configuration list for PBXNativeTarget "WoltTests" */;
+			buildPhases = (
+				6CD68D172C442B6D0098DDB7 /* Sources */,
+				6CD68D182C442B6D0098DDB7 /* Frameworks */,
+				6CD68D192C442B6D0098DDB7 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				6CD68D202C442B6D0098DDB7 /* PBXTargetDependency */,
+			);
+			name = WoltTests;
+			productName = WoltTests;
+			productReference = 6CD68D1B2C442B6D0098DDB7 /* WoltTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -254,6 +305,10 @@
 				TargetAttributes = {
 					6C7680B82C385CF500D8895C = {
 						CreatedOnToolsVersion = 15.2;
+					};
+					6CD68D1A2C442B6D0098DDB7 = {
+						CreatedOnToolsVersion = 15.2;
+						TestTargetID = 6C7680B82C385CF500D8895C;
 					};
 				};
 			};
@@ -271,6 +326,7 @@
 			projectRoot = "";
 			targets = (
 				6C7680B82C385CF500D8895C /* Wolt */,
+				6CD68D1A2C442B6D0098DDB7 /* WoltTests */,
 			);
 		};
 /* End PBXProject section */
@@ -282,6 +338,13 @@
 			files = (
 				6C7680C92C385CF700D8895C /* LaunchScreen.storyboard in Resources */,
 				6C7680C62C385CF700D8895C /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6CD68D192C442B6D0098DDB7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -321,7 +384,24 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		6CD68D172C442B6D0098DDB7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6CD68D1E2C442B6D0098DDB7 /* WoltTests.swift in Sources */,
+				6CD68D252C442BE90098DDB7 /* RestaurantResponseModelTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		6CD68D202C442B6D0098DDB7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6C7680B82C385CF500D8895C /* Wolt */;
+			targetProxy = 6CD68D1F2C442B6D0098DDB7 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		6C7680C72C385CF700D8895C /* LaunchScreen.storyboard */ = {
@@ -516,6 +596,42 @@
 			};
 			name = Release;
 		};
+		6CD68D222C442B6D0098DDB7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = KXSZN874WP;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.owaisss10.WoltTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Wolt.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Wolt";
+			};
+			name = Debug;
+		};
+		6CD68D232C442B6D0098DDB7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = KXSZN874WP;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.owaisss10.WoltTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Wolt.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Wolt";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -533,6 +649,15 @@
 			buildConfigurations = (
 				6C7680CE2C385CF700D8895C /* Debug */,
 				6C7680CF2C385CF700D8895C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6CD68D212C442B6D0098DDB7 /* Build configuration list for PBXNativeTarget "WoltTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6CD68D222C442B6D0098DDB7 /* Debug */,
+				6CD68D232C442B6D0098DDB7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
