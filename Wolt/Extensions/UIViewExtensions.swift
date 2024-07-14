@@ -11,13 +11,13 @@ extension UIView {
 
     func addConstraints(
         top: NSLayoutYAxisAnchor? = nil,
-        left: NSLayoutXAxisAnchor? = nil,
+        leading: NSLayoutXAxisAnchor? = nil,
         bottom: NSLayoutYAxisAnchor? = nil,
-        right: NSLayoutXAxisAnchor? = nil,
+        trailing: NSLayoutXAxisAnchor? = nil,
         paddingTop: CGFloat = 0,
-        paddingLeft: CGFloat = 0,
+        paddingLeading: CGFloat = 0,
         paddingBottom: CGFloat = 0,
-        paddingRight: CGFloat = 0,
+        paddingTrailing: CGFloat = 0,
         width: CGFloat? = nil,
         height: CGFloat? = nil,
         widthAnchor: NSLayoutDimension? = nil,
@@ -34,16 +34,16 @@ extension UIView {
             constraints.append(topAnchor.constraint(equalTo: top, constant: paddingTop))
         }
 
-        if let left = left {
-            constraints.append(leftAnchor.constraint(equalTo: left, constant: paddingLeft))
+        if let leading = leading {
+            constraints.append(leadingAnchor.constraint(equalTo: leading, constant: paddingLeading))
         }
 
         if let bottom = bottom {
             constraints.append(bottomAnchor.constraint(equalTo: bottom, constant: -paddingBottom))
         }
 
-        if let right = right {
-            constraints.append(rightAnchor.constraint(equalTo: right, constant: -paddingRight))
+        if let trailing = trailing {
+            constraints.append(trailingAnchor.constraint(equalTo: trailing, constant: -paddingTrailing))
         }
 
         if let width = width {

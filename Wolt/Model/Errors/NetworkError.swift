@@ -14,14 +14,14 @@ import Foundation
 /// later returns `NSURLError`, and any `URLError` extensions do not
 /// apply and cannot be used for easy error type checking.
 enum NetworkError: Error {
-
+    
     case notConnectedToInternet
     case timedOut
     case other
 }
 
 extension NetworkError {
-
+    
     init(_ urlError: URLError) {
         switch urlError.code {
         case .notConnectedToInternet: self = .notConnectedToInternet
@@ -29,7 +29,7 @@ extension NetworkError {
         default: self = .other
         }
     }
-
+    
     init(_ error: Error) {
         if let urlError = error as? URLError {
             self.init(urlError)
@@ -40,24 +40,24 @@ extension NetworkError {
 }
 
 extension NetworkError {
-
+    
     var message: ErrorMessage {
         switch self {
-
+            
         case .notConnectedToInternet:
             return .init(
-                title: "Network Error",
-                body: "Please check your internet connection and try again."
+                title: Constants.ErrorMessages.networkOfflineTitle,
+                body: Constants.ErrorMessages.networkOfflineMessage
             )
-
+            
         case .timedOut, .other:
             return .init(
-                title: "Server Error",
-                body: "Something went wrong with the network request. Please try again later."
+                title: Constants.ErrorMessages.serverErrorTitle,
+                body: Constants.ErrorMessages.serverErrorMessage
             )
-
+            
         }
     }
-
+    
 }
 

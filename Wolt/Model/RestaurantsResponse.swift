@@ -5,11 +5,6 @@
 //  Created by Awais Akram on 7.7.2024.
 //
 
-//sections -> items -> venue -> id
-//sections -> items -> venue -> name
-//sections -> items -> venue -> short_description
-//sections -> items -> image -> url
-
 import Foundation
 
 struct RestaurantsResponse: Codable {
@@ -18,7 +13,7 @@ struct RestaurantsResponse: Codable {
 
 struct Section: Codable {
     let restaurants: [Restaurant]?
-    
+
     enum CodingKeys: String, CodingKey {
         case restaurants = "items"
     }
@@ -27,13 +22,13 @@ struct Section: Codable {
 struct Restaurant: Codable {
     let venue: Venue?
     let image: Image?
-    
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.venue = try container.decodeIfPresent(Venue.self, forKey: .venue)
         self.image = try container.decodeIfPresent(Image.self, forKey: .image)
     }
-    
+
     var isFavorite: Bool = false
 }
 
@@ -52,4 +47,3 @@ struct Venue: Codable {
     let name: String?
     let short_description: String?
 }
-

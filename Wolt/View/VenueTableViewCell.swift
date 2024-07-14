@@ -14,17 +14,21 @@ protocol VenueTableViewCellDelegate: AnyObject {
 
 class VenueTableViewCell: UITableViewCell {
 
+    // MARK: - Variables
     static let reuseIdentifier = "VenueTableViewCell"
     private var cancellables = Set<AnyCancellable>()
     private let networkImageViewLoader = NetworkImageViewLoader()
     weak var delegate: VenueTableViewCellDelegate?
 
-    // UI Components
+    // MARK: - UI Components
     private let leadingImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFill
+        imageView.contentMode = .scaleToFill
         imageView.clipsToBounds = true
-        imageView.layer.cornerRadius = 10
+        imageView.layer.cornerRadius = Constants.UI.cellImageCornerRadius
+        imageView.layer.borderColor = UIColor.separator.cgColor
+        imageView.layer.borderWidth = 0.5
+        imageView.backgroundColor = .clear
         imageView.image = UIImage(systemName: "photo")
         imageView.tintColor = UIColor { traitCollection in
             traitCollection.userInterfaceStyle == .dark ? .white : .black
@@ -43,7 +47,7 @@ class VenueTableViewCell: UITableViewCell {
     private let subtitleLabel: UILabel = {
         let label = UILabel()
         label.font = Constants.UI.Fonts.subheadline
-        label.textColor = .gray
+        label.textColor = .systemGray
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -56,11 +60,7 @@ class VenueTableViewCell: UITableViewCell {
         return button
     }()
 
-    @objc private func favoriteButtonTapped() {
-        delegate?.didToggleFavorite(for: self)
-    }
-
-    // Initializer
+    // MARK: - Initializer
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupUIandConstraints()
@@ -70,35 +70,51 @@ class VenueTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // Setup UI
+    // MARK: - Setup UI
     private func setupUIandConstraints() {
         contentView.addSubview(leadingImageView)
         contentView.addSubview(titleLabel)
         contentView.addSubview(subtitleLabel)
         contentView.addSubview(favoriteButton)
 
-        NSLayoutConstraint.activate([
-            leadingImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 15),
-            leadingImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            leadingImageView.widthAnchor.constraint(equalToConstant: 60),
-            leadingImageView.heightAnchor.constraint(equalToConstant: 60),
+        leadingImageView.addConstraints(
+            leading: contentView.leadingAnchor,
+            paddingLeading: Constants.UI.horizontalPadding,
+            width: Constants.UI.cellLeadingImageWidth,
+            height: Constants.UI.cellLeadingImageHeight,
+            centerY: contentView.centerYAnchor
+        )
 
-            titleLabel.leadingAnchor.constraint(equalTo: leadingImageView.trailingAnchor, constant: 15),
-            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
-            titleLabel.trailingAnchor.constraint(equalTo: favoriteButton.leadingAnchor, constant: -15),
+        titleLabel.addConstraints(
+            top: contentView.topAnchor,
+            leading: leadingImageView.trailingAnchor,
+            trailing: favoriteButton.leadingAnchor,
+            paddingTop: Constants.UI.cellTopPadding,
+            paddingLeading: Constants.UI.horizontalPadding,
+            paddingTrailing: Constants.UI.horizontalPadding
+        )
 
-            subtitleLabel.leadingAnchor.constraint(equalTo: leadingImageView.trailingAnchor, constant: 15),
-            subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 5),
-            subtitleLabel.trailingAnchor.constraint(equalTo: favoriteButton.leadingAnchor, constant: -15),
-            subtitleLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Constants.UI.bottomPadding),
+        subtitleLabel.addConstraints(
+            top: titleLabel.bottomAnchor,
+            leading: leadingImageView.trailingAnchor,
+            bottom: contentView.bottomAnchor,
+            trailing: favoriteButton.leadingAnchor,
+            paddingTop: Constants.UI.cellTopPadding,
+            paddingLeading: Constants.UI.horizontalPadding,
+            paddingBottom: Constants.UI.bottomPadding,
+            paddingTrailing: Constants.UI.horizontalPadding
+        )
 
-            favoriteButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -15),
-            favoriteButton.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            favoriteButton.widthAnchor.constraint(equalToConstant: 30),
-            favoriteButton.heightAnchor.constraint(equalToConstant: 30)
-        ])
+        favoriteButton.addConstraints(
+            trailing: contentView.trailingAnchor,
+            paddingTrailing: Constants.UI.horizontalPadding,
+            width: Constants.UI.cellTrailingImageWidth,
+            height: Constants.UI.cellTrailingImageHeight,
+            centerY: contentView.centerYAnchor
+        )
     }
 
+    // MARK: - Functions
     func configure(restaurant: Restaurant?) {
 
         let imageUrlString = restaurant?.image?.url
@@ -107,14 +123,17 @@ class VenueTableViewCell: UITableViewCell {
 
         favoriteButton.isFavorite = restaurant?.isFavorite ?? false
 
-        leadingImageView.image = UIImage(systemName: "photo")
         if let imageUrlString = imageUrlString,
            let imageUrl = URL(string: imageUrlString) {
             networkImageViewLoader.loadImage(from: imageUrl)
                 .receive(on: DispatchQueue.main)
                 .sink { [weak self] image in
                     guard let self = self else { return }
-                    self.leadingImageView.image = image
+                    if image != nil {
+                        self.leadingImageView.image = image
+                    } else {
+                        self.leadingImageView.image = UIImage(systemName: "photo")
+                    }
                 }
                 .store(in: &cancellables)
         } else {
@@ -124,5 +143,8 @@ class VenueTableViewCell: UITableViewCell {
         titleLabel.text = title
         subtitleLabel.text = subtitle
     }
-}
 
+    @objc private func favoriteButtonTapped() {
+        delegate?.didToggleFavorite(for: self)
+    }
+}

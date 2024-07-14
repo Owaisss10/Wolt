@@ -35,9 +35,13 @@ class RestaurantsService: RestaurantsServiceProtocol {
             
             let baseUrlString = Constants.API.baseURL + Constants.API.restaurantsEndpoint
 
-            let latitude = location.coordinate.latitude
-            let longitude = location.coordinate.longitude
-            
+//            let latitude = location.coordinate.latitude
+//            let longitude = location.coordinate.longitude
+
+            // TODO: MOCK Location for Simulator
+            let latitude = 60.225816043150196
+            let longitude = 25.06250127220998
+
             guard let url = URL(string: "\(baseUrlString)?lat=\(latitude)&lon=\(longitude)") else {
                 return Fail(
                     outputType: [Restaurant].self,
@@ -58,7 +62,12 @@ class RestaurantsService: RestaurantsServiceProtocol {
                         RestaurantsResponse.self,
                         from: data
                     )
-                    
+
+                    // TODO: Throw error for testing
+//                    if Bool.random() {
+//                        throw RestaurantsServiceError.noRestaurants
+//                    }
+
                     guard let section = restaurantsResponse.sections?.last,
                           let restaurants = section.restaurants,
                           !restaurants.isEmpty

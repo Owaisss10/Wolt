@@ -21,10 +21,9 @@ protocol LocationManagerProtocol {
     func getAddressFromLatLon(latitude: Double, longitude: Double)
 }
 
-// TODO: Make 2 protocols one for permission handling, other for location updates
-
 class LocationManager: NSObject, LocationManagerProtocol {
 
+    // MARK: - Variables
     static let shared = LocationManager()
 
     private let locationManager = CLLocationManager()
@@ -35,6 +34,12 @@ class LocationManager: NSObject, LocationManagerProtocol {
     var addressPublisher = PassthroughSubject<String?, Never>()
     var authorizationPublisher = CurrentValueSubject<CLAuthorizationStatus, Never>(.notDetermined)
 
+    var isLocationPermissionGranted: Bool {
+        let status = locationManager.authorizationStatus
+        return status == .authorizedWhenInUse || status == .authorizedAlways
+    }
+
+    // MARK: - initializer
     override private init() {
         super.init()
         locationManager.delegate = self
@@ -45,11 +50,7 @@ class LocationManager: NSObject, LocationManagerProtocol {
         locationManager.requestAlwaysAuthorization()
     }
 
-    var isLocationPermissionGranted: Bool {
-        let status = locationManager.authorizationStatus
-        return status == .authorizedWhenInUse || status == .authorizedAlways
-    }
-
+    // MARK: - Functions
     func requestLocationPermissions() {
         let status = locationManager.authorizationStatus
         if status == .notDetermined {
@@ -60,7 +61,7 @@ class LocationManager: NSObject, LocationManagerProtocol {
     }
 
     func startUpdatingLocation(every interval: TimeInterval) {
-        stopUpdatingLocation() // Ensure any existing timer is invalidated
+        stopUpdatingLocation()
         locationManager.startUpdatingLocation()
         locationUpdateTimer = Timer.scheduledTimer(
             timeInterval: interval,
@@ -124,7 +125,7 @@ class LocationManager: NSObject, LocationManagerProtocol {
                 } else if let country = placemark.country, !country.isEmpty {
                     areaName = country
                 } else {
-                    areaName = "Unknown Area"
+                    areaName = Constants.DisplayMessages.unknownArea
                 }
             }
 
@@ -144,6 +145,7 @@ extension LocationManager: CLLocationManagerDelegate {
     }
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        stopUpdatingLocation()
         print("Failed to get user location: \(error.localizedDescription)")
         if let clError = error as? CLError {
             switch clError.code {

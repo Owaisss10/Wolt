@@ -11,33 +11,11 @@ import Combine
 class VenueListViewController<ViewModel: VenueListViewModelProtocol>: UITableViewController {
 
     // MARK: - Variables
-
     let viewModel: ViewModel
     private var cancellables = Set<AnyCancellable>()
     private let activityIndicator = UIActivityIndicatorView(style: .medium)
 
-    private func showLoadingIndicator() {
-        activityIndicator.color = UIColor { traitCollection in
-            traitCollection.userInterfaceStyle == .dark ? .white : .black
-        }
-        activityIndicator.startAnimating()
-        activityIndicator.isHidden = false
-    }
-
-    private func hideLoadingIndicator() {
-        activityIndicator.stopAnimating()
-        activityIndicator.isHidden = true
-    }
-
-    private lazy var headerView: CurrentLocationTableHeaderView = {
-        let header = CurrentLocationTableHeaderView(
-            frame: CGRect(x: 0, y: 0, width: tableView.frame.width, height: 100)
-        )
-        return header
-    }()
-
-    // MARK: - Init
-
+    // MARK: - init
     init(viewModel: ViewModel) {
         self.viewModel = viewModel
         super.init(style: .plain)
@@ -47,17 +25,7 @@ class VenueListViewController<ViewModel: VenueListViewModelProtocol>: UITableVie
         fatalError("init(coder:) has not been implemented")
     }
 
-    private func setupNavigationBar() {
-        navigationItem.title = "Wolt"
-        // A loading activity indicator is shown at the right of navigation bar
-        activityIndicator.hidesWhenStopped = true
-        let activityIndicatorBarButton = UIBarButtonItem(
-            customView: activityIndicator
-        )
-        navigationItem.rightBarButtonItem = activityIndicatorBarButton
-    }
-
-    // MARK: - Lifecycle
+    // MARK: - View Lifecycle
     override func viewDidLoad() {
         tableView.separatorStyle = .singleLine
         tableView.tableHeaderView = headerView
@@ -80,16 +48,55 @@ class VenueListViewController<ViewModel: VenueListViewModelProtocol>: UITableVie
         viewModel.stopUpdatingLocation()
     }
 
+    // MARK: - UI Components
+    private lazy var headerView: CurrentLocationTableHeaderView = {
+        let header = CurrentLocationTableHeaderView(
+            frame: CGRect(x: 0, y: 0, width: tableView.frame.width, height: 100)
+        )
+        return header
+    }()
+
+    // MARK: - Functions
+    private func setupNavigationBar() {
+        navigationItem.title = "Wolt"
+        // A loading activity indicator is shown at the right of navigation bar
+        activityIndicator.hidesWhenStopped = true
+        let activityIndicatorBarButton = UIBarButtonItem(
+            customView: activityIndicator
+        )
+        navigationItem.rightBarButtonItem = activityIndicatorBarButton
+    }
+
+    private func showLoadingIndicator() {
+        activityIndicator.color = UIColor { traitCollection in
+            traitCollection.userInterfaceStyle == .dark ? .white : .black
+        }
+        activityIndicator.startAnimating()
+        activityIndicator.isHidden = false
+    }
+
+    private func hideLoadingIndicator() {
+        activityIndicator.stopAnimating()
+        activityIndicator.isHidden = true
+    }
+
     private func updateBackgroundView(state: ErrorState?) {
         if state != nil {
             let errorStateView = ErrorStateView(
-                frame: CGRect(x: 0, y: 0, width: tableView.frame.width, height: 100)
+                frame: CGRect(
+                    x: 0,
+                    y: 0,
+                    width: tableView.frame.width,
+                    height: tableView.frame.height
+                )
             )
             errorStateView.title = state?.title
             errorStateView.body = state?.message
             tableView.backgroundView = errorStateView
+            tableView.tableHeaderView = nil
         } else {
             tableView.backgroundView = nil
+            tableView.tableHeaderView = headerView
         }
     }
 
@@ -158,6 +165,7 @@ class VenueListViewController<ViewModel: VenueListViewModelProtocol>: UITableVie
 }
 
 extension VenueListViewController: VenueTableViewCellDelegate {
+
     func didToggleFavorite(for cell: VenueTableViewCell) {
         guard let indexPath = tableView.indexPath(for: cell) else { return }
         let restaurant = viewModel.currentRestaurants[indexPath.row]

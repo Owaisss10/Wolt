@@ -9,7 +9,7 @@ import UIKit
 
 class ErrorStateView: UIView {
 
-    // Setters
+    // MARK: - Setters
     public var title: String? {
         didSet {
             titleLabel.text = title
@@ -22,7 +22,7 @@ class ErrorStateView: UIView {
         }
     }
 
-    // UI Components
+    // MARK: - UI Components
     private let imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(systemName: "exclamationmark.circle")
@@ -53,7 +53,7 @@ class ErrorStateView: UIView {
         return label
     }()
 
-    // Initializer
+    // MARK: - Initializer
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUIandConstraints()
@@ -63,26 +63,35 @@ class ErrorStateView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // Setup UI
+    // MARK: - Setup UI
     private func setupUIandConstraints() {
         addSubview(imageView)
         addSubview(titleLabel)
         addSubview(bodyLabel)
 
+        imageView.addConstraints(
+            width: Constants.UI.cellErrorStateImageWidth,
+            height: Constants.UI.cellErrorStateImageHeight,
+            centerX: centerXAnchor,
+            centerY: centerYAnchor
+        )
 
-        NSLayoutConstraint.activate([
-            imageView.centerXAnchor.constraint(equalTo: centerXAnchor),
-            imageView.centerYAnchor.constraint(equalTo: centerYAnchor, constant: -20),
-            imageView.widthAnchor.constraint(equalToConstant: 100),
-            imageView.heightAnchor.constraint(equalToConstant: 100),
+        titleLabel.addConstraints(
+            top: imageView.bottomAnchor,
+            leading: leadingAnchor,
+            trailing: trailingAnchor,
+            paddingTop: Constants.UI.topPadding,
+            paddingLeading: Constants.UI.horizontalPadding,
+            paddingTrailing: Constants.UI.horizontalPadding
+        )
 
-            titleLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 20),
-            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
-
-            bodyLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20),
-            bodyLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            bodyLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20)
-        ])
+        bodyLabel.addConstraints(
+            top: titleLabel.bottomAnchor,
+            leading: leadingAnchor,
+            trailing: trailingAnchor,
+            paddingTop: Constants.UI.topPadding,
+            paddingLeading: Constants.UI.horizontalPadding,
+            paddingTrailing: Constants.UI.horizontalPadding
+        )
     }
 }

@@ -17,30 +17,30 @@ enum ErrorState {
     var title: String {
         switch self {
         case .networkOffline:
-            return "Network Error"
+            return Constants.ErrorMessages.networkOfflineTitle
         case .serverError:
-            return "Server Error"
+            return Constants.ErrorMessages.serverErrorTitle
         case .customError(let errorMessage):
             return errorMessage.title ?? ""
         case .httpError(let statusCode):
-            return "HTTP Error - \(statusCode)"
+            return "\(Constants.ErrorMessages.httpErrorTitle) - \(statusCode)"
         case .unknownError:
-            return "Unknown Error"
+            return Constants.ErrorMessages.unknownErrorTitle
         }
     }
 
     var message: String {
         switch self {
         case .networkOffline:
-            return "Please check your internet connection and try again."
+            return Constants.ErrorMessages.networkOfflineMessage
         case .serverError:
-            return "Something went wrong with the network request. Please try again later."
+            return Constants.ErrorMessages.serverErrorMessage
         case .customError(let errorMessage):
             return errorMessage.body ?? ""
         case .httpError(_):
-            return "An unexpected error occurred while processing your request. Please try again."
+            return Constants.ErrorMessages.httpErrorMessage
         case .unknownError:
-            return "An unexpected error occurred while processing your request. Please try again."
+            return Constants.ErrorMessages.unknownErrorMessage
         }
     }
 }

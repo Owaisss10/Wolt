@@ -35,6 +35,9 @@ class WelcomeViewModel: WelcomeViewModelProtocol {
     var locationPermissionDenied = PassthroughSubject<Void, Never>()
     var locationPermissionGranted = PassthroughSubject<Void, Never>()
 
+    var isLocationPermissionGranted: Bool {
+        return locationManager.isLocationPermissionGranted
+    }
 
     // MARK: - init
     init(locationManager: LocationManagerProtocol = LocationManager.shared) {
@@ -42,6 +45,7 @@ class WelcomeViewModel: WelcomeViewModelProtocol {
         setupBindings()
     }
 
+    // MARK: - Functions
     private func setupBindings() {
         locationManager.authorizationPublisher
             .receive(on: DispatchQueue.main)
@@ -50,10 +54,6 @@ class WelcomeViewModel: WelcomeViewModelProtocol {
                 self.didReceiveAuthorizationStatus(authorizationStatus)
             }
             .store(in: &cancellables)
-    }
-
-    var isLocationPermissionGranted: Bool {
-        return locationManager.isLocationPermissionGranted
     }
 
     func didReceiveAuthorizationStatus(_ status: CLAuthorizationStatus) {
@@ -94,12 +94,15 @@ class WelcomeViewModel: WelcomeViewModelProtocol {
 
     var getSettingsAlertController: UIAlertController {
         let alertController = UIAlertController(
-            title: "Location Access Needed",
-            message: "In order to see the nearby restaurants, please enable location services in the Settings.",
+            title: Constants.ErrorMessages.settingsAlertErrorTitle,
+            message: Constants.ErrorMessages.settingsAlertErrorMessage,
             preferredStyle: .alert
         )
 
-        let settingsAction = UIAlertAction(title: "Open settings", style: .default) { (_) in
+        let settingsAction = UIAlertAction(
+            title: Constants.ErrorMessages.openSettingsActionButtonTitle,
+            style: .default
+        ) { (_) in
             guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
                 return
             }
@@ -107,8 +110,12 @@ class WelcomeViewModel: WelcomeViewModelProtocol {
                 UIApplication.shared.open(settingsUrl, completionHandler: nil)
             }
         }
-
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        
+        let cancelAction = UIAlertAction(
+            title: Constants.ErrorMessages.cancelActionButtonTitle,
+            style: .cancel,
+            handler: nil
+        )
 
         alertController.addAction(cancelAction)
         alertController.addAction(settingsAction)

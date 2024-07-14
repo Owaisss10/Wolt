@@ -8,6 +8,7 @@
 import CoreData
 
 class CoreDataManager {
+    // MARK: - Variables
     static let shared = CoreDataManager()
 
     lazy var persistentContainer: NSPersistentContainer = {
@@ -24,6 +25,7 @@ class CoreDataManager {
         return persistentContainer.viewContext
     }
 
+    // MARK: - Functions
     func saveContext() {
         let context = persistentContainer.viewContext
         if context.hasChanges {
@@ -35,16 +37,21 @@ class CoreDataManager {
         }
     }
 
-    func fetchFavoriteItems() -> [FavoriteItem] {
+    // MARK: - Save an item
+    func saveFavoriteItem(id: String) {
         do {
-            let fetchRequest: NSFetchRequest<FavoriteItem> = FavoriteItem.fetchRequest()
-            return try context.fetch(fetchRequest)
+            let entity = NSEntityDescription.entity(forEntityName: "FavoriteItem", in: context)!
+            let newVenue = NSManagedObject(entity: entity, insertInto: context)
+            newVenue.setValue(id, forKey: "id")
+            newVenue.setValue(true, forKey: "isFavorite")
+
+            try context.save()
         } catch {
-            print("Favorite items fetching failed with error: \(error.localizedDescription)")
-            return []
+            print("Favorite item saving failed with error: \(error.localizedDescription)")
         }
     }
 
+    // MARK: - Delete an item
     func deleteFavoriteItem(for id: String) {
         do {
             let fetchRequest: NSFetchRequest<NSFetchRequestResult> = FavoriteItem.fetchRequest()
@@ -58,16 +65,14 @@ class CoreDataManager {
         }
     }
 
-    func saveFavoriteItem(id: String) {
+    // MARK: - Fetch all saved items
+    func fetchFavoriteItems() -> [FavoriteItem] {
         do {
-            let entity = NSEntityDescription.entity(forEntityName: "FavoriteItem", in: context)!
-            let newVenue = NSManagedObject(entity: entity, insertInto: context)
-            newVenue.setValue(id, forKey: "id")
-            newVenue.setValue(true, forKey: "isFavorite")
-
-            try context.save()
+            let fetchRequest: NSFetchRequest<FavoriteItem> = FavoriteItem.fetchRequest()
+            return try context.fetch(fetchRequest)
         } catch {
-            print("Favorite item saving failed with error: \(error.localizedDescription)")
+            print("Favorite items fetching failed with error: \(error.localizedDescription)")
+            return []
         }
     }
 }

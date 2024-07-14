@@ -9,12 +9,14 @@ import UIKit
 
 class FavoriteButton: UIButton {
 
+    // MARK: - Setters
     var isFavorite: Bool = false {
         didSet {
             updateImage()
         }
     }
 
+    // MARK: - Initializer
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.addTarget(self, action: #selector(animateButton), for: .touchUpInside)
@@ -27,6 +29,7 @@ class FavoriteButton: UIButton {
         updateImage()
     }
 
+    // MARK: - Functions
     private func updateImage() {
         let filledImage = UIImage(named: "favorite_filled")?.withRenderingMode(.alwaysTemplate)
         let unfilledImage = UIImage(named: "favorite")?.withRenderingMode(.alwaysTemplate)

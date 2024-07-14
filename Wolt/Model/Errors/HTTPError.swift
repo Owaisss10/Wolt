@@ -8,6 +8,6 @@
 import Foundation
 
 enum HTTPError: Error {
-
+    
     case any(response: URLResponse)
 }

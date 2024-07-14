@@ -24,19 +24,21 @@ protocol VenueListViewModelProtocol: AnyObject {
 }
 
 class VenueListViewModel: VenueListViewModelProtocol {
-
+    
     // MARK: - Variables
     let service: RestaurantsServiceProtocol
     private var cancellables = Set<AnyCancellable>()
     private var locationManager: LocationManagerProtocol
     var currentRestaurants = [Restaurant]()
-
+    
     // MARK: - Publishers
     @Published var isLoading = false
     var isLoadingPublisher: Published<Bool>.Publisher { $isLoading }
     var restaurantsPublisher = CurrentValueSubject<[Restaurant], Never>([])
     var errorStatePublisher = CurrentValueSubject<ErrorState?, Never>(nil)
-    var currentAreaName = CurrentValueSubject<String, Never>("Nearby restaurants in \n-")
+    var currentAreaName = CurrentValueSubject<String, Never>(
+        Constants.DisplayMessages.currentAddressPrefix
+    )
 
     // MARK: - init
     init(
@@ -48,10 +50,12 @@ class VenueListViewModel: VenueListViewModelProtocol {
         setupBindings()
     }
 
+    // MARK: - Functions
+
     func startUpdatingLocation(every interval: TimeInterval) {
         locationManager.startUpdatingLocation(every: interval)
     }
-
+    
     private func setupBindings() {
         locationManager.locationPublisher
             .receive(on: DispatchQueue.main)
@@ -61,26 +65,24 @@ class VenueListViewModel: VenueListViewModelProtocol {
                 self.fetchAddress(for: location)
             }
             .store(in: &cancellables)
-
+        
         locationManager.addressPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] address in
                 guard let self = self,
                       let address else { return }
-                self.currentAreaName.send("Showing nearby restaurants in \n\(address)")
+                self.currentAreaName.send("\(Constants.DisplayMessages.currentAddressPrefix) \(address)")
             }
             .store(in: &cancellables)
     }
-
+    
     // MARK: - Load data
     func getNearbyRestaurantsIn(location: CLLocation) {
-
         isLoading = true
-
+        
         let lat = location.coordinate.latitude
         let lon = location.coordinate.longitude
-        print("Current location: \(lat), \(lon)")
-
+        
         self.service.getNearbyRestaurants(for: CLLocation(
             latitude: lat,
             longitude: lon
@@ -96,25 +98,25 @@ class VenueListViewModel: VenueListViewModelProtocol {
         })
         .store(in: &self.cancellables)
     }
-
+    
     func stopUpdatingLocation() {
         locationManager.stopUpdatingLocation()
     }
-
+    
     private func processAndMatchFavoriteRestaurants(_ restaurants: [Restaurant]) {
         isLoading = false
-
+        
         // Match the restaurants coming from server with locally saved restaurants
         matchRestaurantsWithFavoriteState(restaurants)
     }
-
+    
     private func didReceiveRestaurants(_ restaurants: [Restaurant]) {
         guard currentRestaurants != restaurants else { return }
         currentRestaurants = restaurants
         restaurantsPublisher.send(currentRestaurants)
         errorStatePublisher.send(nil)
     }
-
+    
     func toggleFavoriteRestaurant(restaurant: Restaurant) {
         if let index = currentRestaurants.firstIndex(of: restaurant) {
             var restaurantToUpdate = currentRestaurants[index]
@@ -122,16 +124,16 @@ class VenueListViewModel: VenueListViewModelProtocol {
             currentRestaurants[index] = restaurantToUpdate
         }
     }
-
+    
     // MARK: Error handling
     /// 1. Check for any `NetworkError`
     /// 2. Check for any `RestaurantsServiceError`
     /// 3. Check for any `HTTPError`
     private func handleError(_ error: Error) {
         isLoading = false
-
+        
         var errorState = ErrorState.unknownError
-
+        
         if let networkError = error as? NetworkError {
             switch(networkError) {
             case .notConnectedToInternet:
@@ -148,12 +150,12 @@ class VenueListViewModel: VenueListViewModelProtocol {
         }
         showErrorState(errorState)
     }
-
+    
     private func showErrorState(_ errorState: ErrorState) {
         restaurantsPublisher.send([])
         errorStatePublisher.send(errorState)
     }
-
+    
     private func fetchAddress(for location: CLLocation) {
         locationManager.getAddressFromLatLon(
             latitude: location.coordinate.latitude,
@@ -169,16 +171,16 @@ extension VenueListViewModel {
     func saveFavoriteVenue(venueId: String) {
         CoreDataManager.shared.saveFavoriteItem(id: venueId)
     }
-
+    
     func deleteFavoriteVenue(venueId: String) {
         CoreDataManager.shared.deleteFavoriteItem(for: venueId)
     }
-
+    
     func matchRestaurantsWithFavoriteState(_ restaurants: [Restaurant]) {
         let favoriteItems = CoreDataManager.shared.fetchFavoriteItems()
         if !favoriteItems.isEmpty {
             var restaurantsWithFavoriteState: [Restaurant] = []
-
+            
             restaurants.forEach { restaurant in
                 if let isFavorite = favoriteItems.first(where: {$0.id == restaurant.venue?.id})?.isFavorite {
                     var updatedRestaurant = restaurant
@@ -188,7 +190,7 @@ extension VenueListViewModel {
                     restaurantsWithFavoriteState.append(restaurant)
                 }
             }
-
+            
             didReceiveRestaurants(restaurantsWithFavoriteState)
         } else {
             didReceiveRestaurants(restaurants)

@@ -10,9 +10,11 @@ import Combine
 
 class NetworkImageViewLoader {
 
+    // MARK: - Variables
     private var cache = NSCache<NSString, UIImage>()
     private var cancellables = Set<AnyCancellable>()
 
+    // MARK: - Functions
     func loadImage(from url: URL) -> AnyPublisher<UIImage?, Never> {
         if let cachedImage = cache.object(forKey: url.absoluteString as NSString) {
             return Just(cachedImage)

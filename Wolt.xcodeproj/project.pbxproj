@@ -15,7 +15,6 @@
 		6C7680BF2C385CF500D8895C /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C7680BE2C385CF500D8895C /* SceneDelegate.swift */; };
 		6C7680C62C385CF700D8895C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6C7680C52C385CF700D8895C /* Assets.xcassets */; };
 		6C7680C92C385CF700D8895C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6C7680C72C385CF700D8895C /* LaunchScreen.storyboard */; };
-		6C7680D12C385F5800D8895C /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 6C7680D02C385F5800D8895C /* README.md */; };
 		6C7680D62C3ABD7600D8895C /* RestaurantsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C7680D52C3ABD7600D8895C /* RestaurantsResponse.swift */; };
 		6C7680D92C3ABDB200D8895C /* RestaurantsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C7680D82C3ABDB200D8895C /* RestaurantsService.swift */; };
 		6C7680DE2C3ABF4100D8895C /* Networking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C7680DD2C3ABF4100D8895C /* Networking.swift */; };
@@ -49,7 +48,6 @@
 		6C7680C52C385CF700D8895C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6C7680C82C385CF700D8895C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		6C7680CA2C385CF700D8895C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		6C7680D02C385F5800D8895C /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		6C7680D52C3ABD7600D8895C /* RestaurantsResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantsResponse.swift; sourceTree = "<group>"; };
 		6C7680D82C3ABDB200D8895C /* RestaurantsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantsService.swift; sourceTree = "<group>"; };
 		6C7680DD2C3ABF4100D8895C /* Networking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Networking.swift; sourceTree = "<group>"; };
@@ -87,6 +85,7 @@
 			isa = PBXGroup;
 			children = (
 				6C2128A02C4355930071AEC1 /* UIViewExtensions.swift */,
+				6C7680E72C3AC52F00D8895C /* URLResponseExtensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -115,7 +114,6 @@
 				6C7680BE2C385CF500D8895C /* SceneDelegate.swift */,
 				6C7680C52C385CF700D8895C /* Assets.xcassets */,
 				6C7680C72C385CF700D8895C /* LaunchScreen.storyboard */,
-				6C7680D02C385F5800D8895C /* README.md */,
 				6C7681012C3DD6F300D8895C /* RestaurantDB.xcdatamodeld */,
 				6C21289F2C43556B0071AEC1 /* Extensions */,
 				6C7681152C3E7A1F00D8895C /* Persistence */,
@@ -163,7 +161,7 @@
 		6C7680DC2C3ABF3200D8895C /* Networking */ = {
 			isa = PBXGroup;
 			children = (
-				6C7680E62C3AC50400D8895C /* Utilities */,
+				6C7680FD2C3C678300D8895C /* NetworkImageView.swift */,
 				6C7680DD2C3ABF4100D8895C /* Networking.swift */,
 			);
 			path = Networking;
@@ -178,15 +176,6 @@
 				6C7680FB2C3C0D2B00D8895C /* ErrorMessage.swift */,
 			);
 			path = Errors;
-			sourceTree = "<group>";
-		};
-		6C7680E62C3AC50400D8895C /* Utilities */ = {
-			isa = PBXGroup;
-			children = (
-				6C7680E72C3AC52F00D8895C /* URLResponseExtensions.swift */,
-				6C7680FD2C3C678300D8895C /* NetworkImageView.swift */,
-			);
-			path = Utilities;
 			sourceTree = "<group>";
 		};
 		6C7680E92C3AC7B800D8895C /* Screens */ = {
@@ -291,7 +280,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6C7680D12C385F5800D8895C /* README.md in Resources */,
 				6C7680C92C385CF700D8895C /* LaunchScreen.storyboard in Resources */,
 				6C7680C62C385CF700D8895C /* Assets.xcassets in Resources */,
 			);
