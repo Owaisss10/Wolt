@@ -18,7 +18,7 @@ class CurrentLocationTableHeaderView: UIView {
     let titleLabel: UILabel = {
         let label = UILabel()
         label.text = "Nearby restaurants in \n-"
-        label.font = .preferredFont(forTextStyle: .title3)
+        label.font = Constants.UI.Fonts.title2
         label.numberOfLines = 0
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false

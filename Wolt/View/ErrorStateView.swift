@@ -36,7 +36,7 @@ class ErrorStateView: UIView {
         label.text = "No data available"
         label.textAlignment = .center
         label.textColor = .gray
-        label.font = .preferredFont(forTextStyle: .headline)
+        label.font = Constants.UI.Fonts.title1
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -47,7 +47,7 @@ class ErrorStateView: UIView {
         label.text = "Something went wrong"
         label.textAlignment = .center
         label.textColor = .gray
-        label.font = .preferredFont(forTextStyle: .headline)
+        label.font = Constants.UI.Fonts.body
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label

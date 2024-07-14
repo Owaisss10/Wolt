@@ -35,14 +35,14 @@ class VenueTableViewCell: UITableViewCell {
 
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .preferredFont(forTextStyle: .headline)
+        label.font = Constants.UI.Fonts.headline
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
 
     private let subtitleLabel: UILabel = {
         let label = UILabel()
-        label.font = .preferredFont(forTextStyle: .subheadline)
+        label.font = Constants.UI.Fonts.subheadline
         label.textColor = .gray
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -90,7 +90,7 @@ class VenueTableViewCell: UITableViewCell {
             subtitleLabel.leadingAnchor.constraint(equalTo: leadingImageView.trailingAnchor, constant: 15),
             subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 5),
             subtitleLabel.trailingAnchor.constraint(equalTo: favoriteButton.leadingAnchor, constant: -15),
-            subtitleLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20),
+            subtitleLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Constants.UI.bottomPadding),
 
             favoriteButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -15),
             favoriteButton.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),

@@ -33,8 +33,8 @@ class RestaurantsService: RestaurantsServiceProtocol {
                 return publisher
             }
             
-            let baseUrlString = "https://restaurant-api.wolt.com/v1/pages/restaurants"
-            
+            let baseUrlString = Constants.API.baseURL + Constants.API.restaurantsEndpoint
+
             let latitude = location.coordinate.latitude
             let longitude = location.coordinate.longitude
             

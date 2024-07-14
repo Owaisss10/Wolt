@@ -24,7 +24,7 @@ class WelcomeViewController<ViewModel: WelcomeViewModel>: UIViewController {
     }
 
     private func setupNavigationBar() {
-        navigationItem.title = "Wolt"
+        navigationItem.title = nil
     }
 
     override func viewDidLoad() {
@@ -37,7 +37,7 @@ class WelcomeViewController<ViewModel: WelcomeViewModel>: UIViewController {
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.text = "Welcome to the Wolt App!"
-        label.font = .preferredFont(forTextStyle: .title1)
+        label.font = Constants.UI.Fonts.title1
         label.numberOfLines = 0
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -47,7 +47,7 @@ class WelcomeViewController<ViewModel: WelcomeViewModel>: UIViewController {
     private lazy var bodyLabel: UILabel = {
         let label = UILabel()
         label.text = "We are glad to have you here. Wolt app requires location permission in order to show you amazing restaurants nearby."
-        label.font = .preferredFont(forTextStyle: .body)
+        label.font = Constants.UI.Fonts.body
         label.numberOfLines = 0
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -67,7 +67,7 @@ class WelcomeViewController<ViewModel: WelcomeViewModel>: UIViewController {
     private lazy var requestLocationServicesButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Enable location services", for: .normal)
-        button.titleLabel?.font = .preferredFont(forTextStyle: .headline)
+        button.titleLabel?.font = Constants.UI.Fonts.headline
         button.setTitleColor(.white, for: .normal)
         button.backgroundColor = .systemBlue
         button.layer.cornerRadius = 10
@@ -91,27 +91,43 @@ class WelcomeViewController<ViewModel: WelcomeViewModel>: UIViewController {
             }
             .store(in: &cancellables)
 
-        NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 50),
-            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+        titleLabel.addConstraints(
+            top: view.safeAreaLayoutGuide.topAnchor,
+            left: view.leftAnchor,
+            right: view.rightAnchor,
+            paddingTop: Constants.UI.topPadding,
+            paddingLeft: Constants.UI.horizontalPadding,
+            paddingRight: Constants.UI.horizontalPadding
+        )
 
-            bodyLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 30),
-            bodyLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            bodyLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+        bodyLabel.addConstraints(
+            top: titleLabel.bottomAnchor,
+            left: view.leftAnchor,
+            right: view.rightAnchor,
+            paddingTop: Constants.UI.verticalPadding,
+            paddingLeft: Constants.UI.horizontalPadding,
+            paddingRight: Constants.UI.horizontalPadding
+        )
 
-            imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            imageView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8),
-            imageView.heightAnchor.constraint(equalTo: view.widthAnchor),
-            imageView.topAnchor.constraint(equalTo: bodyLabel.bottomAnchor, constant: 20),
-            imageView.bottomAnchor.constraint(equalTo: requestLocationServicesButton.topAnchor, constant: -20),
+        imageView.addConstraints(
+            top: bodyLabel.bottomAnchor,
+            paddingTop: Constants.UI.topPadding,
+            widthAnchor: view.widthAnchor,
+            widthMultiplier: 0.8,
+            heightAnchor: view.widthAnchor,
+            heightMultiplier: 0.8,
+            centerX: view.centerXAnchor,
+            centerY: view.centerYAnchor
+        )
 
-            requestLocationServicesButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -30),
-            requestLocationServicesButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            requestLocationServicesButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8),
-            requestLocationServicesButton.heightAnchor.constraint(equalToConstant: 50)
-        ])
-
+        requestLocationServicesButton.addConstraints(
+            bottom: view.safeAreaLayoutGuide.bottomAnchor,
+            paddingBottom: 30,
+            height: Constants.UI.buttonHeight,
+            widthAnchor: view.widthAnchor,
+            widthMultiplier: 0.8,
+            centerX: view.centerXAnchor
+        )
     }
 
     @objc func locationButtonTapped() {
